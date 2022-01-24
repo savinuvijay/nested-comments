@@ -1,120 +1,95 @@
 const template = document.createElement("template");
 template.innerHTML = `
-  <style>
-
-    .comment-box {
-        margin-top: 20px;
-        border-radius: 5px;
-        padding: 20px;
-        color: #333;
-        box-shadow: rgba(3, 8, 20, 0.3) 0px 0.15rem 0.5rem,
-            rgba(2, 8, 20, 0.2) 0px 0.075rem 0.175rem;
-        background-color: #f3f3f3;
-    }
-
-    .comment-box .author {
-        margin-top: 10px;
-    }
-
-    .comment-box .likes {
-        margin-bottom: 10px;
-    }
-
-    .comment-box .reply-box {
-        margin-top: 10px;
-    }
-
-    .comment-box button {
-        margin-top: 5px;
-        margin-right: 5px;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-weight: 500;
-        border-style: none;
-        border-width: 2px;
-        border-color: #333;
-        background: #fff;
-        box-shadow: rgba(3, 8, 20, 0.3) 0px 0.15rem 0.5rem,
-            rgba(2, 8, 20, 0.3) 0px 0.075rem 0.175rem;
-        display: inline;
-    }
-
-  </style>
-  <div class="comment-box">
-    <div class="comment-edit">
-      <input class="comment-input" type="text" />
-      <button class="comment-submit">Submit</button>
+    <link rel="stylesheet" href="commentBoxStyle.css" />
+    <div class="comment-box">
+        <div class="comment-edit">
+            <input class="comment-input" type="text" />
+            <button class="submit-btn">Submit</button>
+        </div>
+        <div class="comment-display">
+            <p class="comment">Comment</p>
+            <p class="author">Author:</p>
+            <p class="likes">Likes: 0</p>
+            <button class="like-btn">Like</button>
+            <button class="reply-btn">Reply</button>
+            <div class="reply-box"></div>
+        </div>
     </div>
-    <div class="comment-display">
-      <p class="comment">Comment</p>
-      <p class="author">Author:</p>
-      <p class="likes">Likes:</p>
-      <button class="like-btn">Like</button>
-      <button class="reply-btn">Reply</button>
-      <div class="reply-box"></div>
-    </div>
-  </div>
 `;
+
+const nestingLimit = 3;
 
 export class CommentBox extends HTMLElement {
     constructor() {
         super();
+        this.level = this.getAttribute("level")
+            ? parseInt(this.getAttribute("level"))
+            : 0;
         this.attachShadow({ mode: "open" });
-        this.level = this.getAttribute("level");
         this.likeCount = 0;
         this.shadowRoot.appendChild(template.content.cloneNode(true));
-    }
 
-    commentSubmit() {
-        const commentBox = this.shadowRoot.querySelector(".comment-edit");
-        const commentDisplay =
-            this.shadowRoot.querySelector(".comment-display");
-        const commentInput = this.shadowRoot.querySelector(".comment-input");
-        const comment = commentDisplay.querySelector(".comment");
-        const likes = commentDisplay.querySelector(".likes");
-        comment.innerHTML = commentInput.value;
-        likes.innerHTML = `Likes: ${this.likeCount}`;
-        commentBox.style.display = "none";
-        commentDisplay.style.display = "block";
-    }
-
-    commentLike() {
-        const commentDisplay =
-            this.shadowRoot.querySelector(".comment-display");
-        const likes = commentDisplay.querySelector(".likes");
-        this.likeCount++;
-        likes.innerHTML = `Likes: ${this.likeCount}`;
-    }
-    commentReply() {
-        if (parseInt(this.level) < 3) {
-            const replyBox = this.shadowRoot.querySelector(".reply-box");
-            const newCommentBox = document.createElement("comment-box");
-            newCommentBox.setAttribute("level", parseInt(this.level) + 1);
-            newCommentBox.level = parseInt(this.level) + 1;
-            if (replyBox.childNodes) {
-                replyBox.insertBefore(newCommentBox, replyBox.childNodes[0]);
-            } else {
-                replyBox.appendChild(newCommentBox);
-            }
-        }
+        this.commentEdit = this.shadowRoot.querySelector(".comment-edit");
+        this.commentDisplay = this.shadowRoot.querySelector(".comment-display");
     }
 
     connectedCallback() {
-        const commentDisplay =
-            this.shadowRoot.querySelector(".comment-display");
-        commentDisplay.style.display = "none";
-        this.shadowRoot
-            .querySelector(".comment-submit")
+        this.commentEdit
+            .querySelector(".submit-btn")
             .addEventListener("click", () => this.commentSubmit());
-        this.shadowRoot
-            .querySelector(".reply-btn")
-            .addEventListener("click", () => this.commentReply());
-        this.shadowRoot
+
+        this.commentDisplay
             .querySelector(".like-btn")
             .addEventListener("click", () => this.commentLike());
+
+        if (this.level < nestingLimit) {
+            this.commentDisplay
+                .querySelector(".reply-btn")
+                .addEventListener("click", () => this.commentReply());
+        } else {
+            this.commentDisplay.querySelector(".reply-btn").disabled = true;
+        }
+
+        this.commentDisplay.style.display = "none";
+    }
+
+    commentSubmit() {
+        const commentInput = this.commentEdit.querySelector(".comment-input");
+
+        const comment = this.commentDisplay.querySelector(".comment");
+        const author = this.commentDisplay.querySelector(".author");
+
+        comment.innerHTML = commentInput.value;
+        author.innerHTML = `Author: ${sessionStorage.getItem("currentUser")}`;
+
+        this.commentEdit.style.display = "none";
+        this.commentDisplay.style.display = "block";
+    }
+
+    commentLike() {
+        const likes = this.commentDisplay.querySelector(".likes");
+
+        this.likeCount++;
+        likes.innerHTML = `Likes: ${this.likeCount}`;
+    }
+
+    commentReply() {
+        const replyBox = this.commentDisplay.querySelector(".reply-box");
+        const newCommentBox = document.createElement("comment-box");
+
+        let newLevel = this.level + 1;
+        newCommentBox.setAttribute("level", newLevel);
+        newCommentBox.level = newLevel;
+        if (replyBox.childNodes) {
+            replyBox.insertBefore(newCommentBox, replyBox.childNodes[0]);
+        } else {
+            replyBox.appendChild(newCommentBox);
+        }
     }
 
     disconnectedCallback() {
-        this.shadowRoot.querySelector(".comment-submit").removeEventListener();
+        this.commentEdit.querySelector(".comment-submit").removeEventListener();
+        this.commentDisplay.querySelector(".reply-btn").removeEventListener();
+        this.commentDisplay.querySelector(".like-btn").removeEventListener();
     }
 }

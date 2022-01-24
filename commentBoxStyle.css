@@ -1,0 +1,68 @@
+.comment-box {
+    margin-top: 20px;
+    border-radius: 5px;
+    padding: 20px;
+    color: #333;
+    box-shadow: rgba(3, 8, 20, 0.2) 0px 0.15rem 0.5rem,
+        rgba(2, 8, 20, 0.2) 0px 0.075rem 0.175rem;
+    background-color: #f3f3f3;
+}
+
+.comment-box .comment {
+    border-radius: 5px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: rgba(3, 8, 20, 0.1) 0px 0.15rem 0.5rem,
+        rgba(2, 8, 20, 0.1) 0px 0.075rem 0.175rem;
+}
+
+.comment-box .author,
+.likes {
+    color: #777;
+    font-weight: bold;
+    font-size: 14px;
+}
+.comment-box .author {
+    margin-top: 10px;
+}
+
+.comment-box .likes {
+    margin-bottom: 10px;
+}
+
+.comment-box .reply-box {
+    margin-top: 10px;
+}
+
+.comment-box input {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: #777;
+    box-shadow: rgba(3, 8, 20, 0.1) 0px 0.15rem 0.5rem,
+        rgba(2, 8, 20, 0.1) 0px 0.075rem 0.175rem;
+}
+
+.comment-box button {
+    margin-top: 5px;
+    margin-right: 5px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-weight: 600;
+    border-style: none;
+    background: #fff;
+    box-shadow: rgba(3, 8, 20, 0.3) 0px 0.15rem 0.5rem,
+        rgba(2, 8, 20, 0.3) 0px 0.075rem 0.175rem;
+    display: inline;
+    transition: all 200ms;
+}
+
+.comment-box button:hover {
+    background: #eee;
+}
+
+.comment-box button:active {
+    background: #ddd;
+}

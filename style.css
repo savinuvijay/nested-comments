@@ -11,12 +11,13 @@ body {
     color: #fff;
 }
 
-.comment-box-container {
+.container {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 20px;
 }
 
-.comment-box-item {
+.comments {
     width: 40vw;
 }
