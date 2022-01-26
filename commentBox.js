@@ -3,6 +3,7 @@
  * Define the structure of the web component as its innerHTML.
  */
 const template = document.createElement("template");
+
 /**
  * Styles for the web component is available in 'commentBoxStyle.css'.
  * The style file is linked within the innerHTML.
@@ -33,6 +34,7 @@ template.innerHTML = `
         </div>
     </div>
 `;
+
 /**
  * The value of 'nestingLimit' is used to limit the number of nested replies any user can add.
  * Here, nesting is limited to three levels.
@@ -67,7 +69,7 @@ export class CommentBox extends HTMLElement {
         // Appending a clone of the template defined above to the shadowRoot.
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
-        // Setting the 'commentEdit' and 'commentDisplay' variables to point to its respective HTML elements in the shadow DOM
+        // Make 'commentEdit' and 'commentDisplay' variables to point to its respective HTML elements in the shadow DOM
         this.commentEdit = this.shadowRoot.querySelector(".comment-edit");
         this.commentDisplay = this.shadowRoot.querySelector(".comment-display");
     }
@@ -76,55 +78,91 @@ export class CommentBox extends HTMLElement {
      * We attach the event listeners for all the buttons present on the component in this method.
      */
     connectedCallback() {
+        // Attaching commentSubmit() listner to click event for the Submit button.
         this.commentEdit
             .querySelector(".submit-btn")
             .addEventListener("click", () => this.commentSubmit());
 
+        // Attaching commentLike() listner to click event for the Like button.
         this.commentDisplay
             .querySelector(".like-btn")
             .addEventListener("click", () => this.commentLike());
 
+        // Attaching commentLike() listner to click event for the Reply button -
+        // if the current level is less than nesting limit.
         if (this.level < nestingLimit) {
             this.commentDisplay
                 .querySelector(".reply-btn")
                 .addEventListener("click", () => this.commentReply());
         } else {
+            // Disabling the Reply Button if current level is not less than nesting limit.
             this.commentDisplay.querySelector(".reply-btn").disabled = true;
         }
 
+        // Setting the display style for the commentDisplay element to none.
+        // This element will be initially hidden from view and will be displayed only when the comment is submitted.
         this.commentDisplay.style.display = "none";
     }
 
+    /**
+     * This method is called when the user clicks the submit button.
+     */
     commentSubmit() {
+        // make the commentInput variable to point to the input box HTML element.
         const commentInput = this.commentEdit.querySelector(".comment-input");
 
+        // make the comment variable to point to the div in which the comment will be displayed
         const comment = this.commentDisplay.querySelector(".comment");
+
+        // make the author variable to point to the author <p> tag.
         const author = this.commentDisplay.querySelector(".author");
 
+        // Set the comment submitted by the user as the content for display.
         comment.innerHTML = commentInput.value;
+        // Set the author name with the value of Current User from sessionStorage
         author.innerHTML = `Author: ${sessionStorage.getItem("currentUser")}`;
 
+        // Hide commentEdit div
         this.commentEdit.style.display = "none";
+        // Unhide commentDisplay div
         this.commentDisplay.style.display = "block";
     }
 
+    /**
+     * This method is called when the user clicks on the Like button present beside any comment.
+     */
     commentLike() {
+        // make the likes variable to point to the likes <p> tag.
         const likes = this.commentDisplay.querySelector(".likes");
 
+        // Increment like count
         this.likeCount++;
+
+        // Set the update like count for display.
         likes.innerHTML = `Likes: ${this.likeCount}`;
     }
 
+    /**
+     * This method is called when the user clicks on the Reply button present beside any comment.
+     */
     commentReply() {
+        // Make the replyBox variable to point to the reply-box DIV.
         const replyBox = this.commentDisplay.querySelector(".reply-box");
+        // create a new comment-box component as an HTML element and set its value to the newCommentBox variable.
         const newCommentBox = document.createElement("comment-box");
 
+        // Set newLevel by incrementing current level by 1.
         let newLevel = this.level + 1;
+        // Set the value of level attribute as newLevel for the newCommentBox component.
         newCommentBox.setAttribute("level", newLevel);
         newCommentBox.level = newLevel;
+
+        // If the reply box already has any child nodes,
         if (replyBox.childNodes) {
+            // the newCommentBox is inserted before the first child in the reply box.
             replyBox.insertBefore(newCommentBox, replyBox.childNodes[0]);
         } else {
+            // newCommentBox is appended directly as the first child.
             replyBox.appendChild(newCommentBox);
         }
     }
