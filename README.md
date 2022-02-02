@@ -8,7 +8,7 @@ For Live Demo: https://stackblitz.com/edit/web-platform-nac3d2
 
 This Project can help you in understanding how Web Components work and how you can use it along with JavaScript ES modules.
 
-Here we try to create a custom <comment-box> web component and use it to create a nested comment/reply system.
+Here we create a custom <comment-box> web component and use it to create a nested comment/reply system.
 
 ## Author
 
